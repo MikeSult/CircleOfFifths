@@ -1,0 +1,519 @@
+<!--
+    Winhweel.js hollow (doughnut) code wheel example by Douglas McKechie @ www.dougtesting.net
+    See website for tutorials and other documentation.
+
+    The MIT License (MIT)
+
+    Copyright (c) 2016 Douglas McKechie
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+-->
+<!--
+
+    Modification made my Mike Sult - 2019
+    - use circle as musical 'Circle of Fifths'
+    - added sounds using Tone.js
+    - added key signature images
+-->
+<html>
+    <head>
+        <title>HTML5 Canvas Circle of Fifths</title>
+        <link rel="stylesheet" href="main.css" type="text/css" />
+        <script type="text/javascript" src="./Winwheel.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>
+    <script type="text/javascript" src="https://www.guitarland.com/javascripts/Tone.js"></script>
+	<script type="text/javascript" src="https://www.guitarland.com/javascripts/StartAudioContext.js"></script>
+
+
+    </head>
+    <body>
+        <div align="center">
+            <h1>Circle of Fifths</h1>
+            <br>
+            <h2 id="message">C major: C D E F G A B C</h2>
+            <table cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                    <td>
+                        <div class="">
+
+                            <table class="power" cellpadding="10" cellspacing="0">
+                                <tr>
+                                    <th colspan="2" align="center">Set Key</th>
+                                </tr>
+                                <tr>
+                                    <td align="center" id="addFlat" onClick="changeIndex(+1);">+1 b or -1 #</td>
+                                    <td align="center" id="addSharp" onClick="changeIndex(-1);">+1 # or -1 b</td>
+                                </tr>
+                                <tr>
+                                    <th colspan="2" align="center" width=120 height=77>&nbsp;<span id="keySig"></span></th>
+                                </tr>
+                        </div>
+                            <br />
+                            <br />
+                        <div class="power_controls">
+                            <br />
+                            <br />
+                            <table class="power" cellpadding="10" cellspacing="0">
+                                <tr>
+                                    <th align="center">Power</th>
+                                </tr>
+                                <tr>
+                                    <td width="78" align="center" id="pw3" onClick="powerSelected(6);">High</td>
+                                </tr>
+                                <tr>
+                                    <td align="center" id="pw2" onClick="powerSelected(4);">Med</td>
+                                </tr>
+                                <tr>
+                                    <td align="center" id="pw1" onClick="powerSelected(2);">Low</td>
+                                </tr>
+                                <tr>
+                                    <td align="center" id="pw0" onClick="powerSelected(0);">Lowest</td>
+                                </tr>
+                            </table>
+                            <br />
+                            <img id="spin_button" src="spin_off.png" alt="Spin" onClick="startSpin();" />
+                            <br />
+                        </div>
+                    </td>
+                    <td width="438" height="582" class="the_wheel" align="center" valign="center">
+                        <canvas id="canvas" width="434" height="434">
+                            <p style="{color: white}" align="center">Sorry, your browser doesn't support canvas. Please try another.</p>
+                        </canvas>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <script>
+            const imagePath = './KeySignatures/';
+            const outerRadius = 212;
+            const innerRadius = 100;
+            let toneJSScale = '';
+            let keyColors = {1: '#ffffff', 2: '#fff0ff', 3: '#ffe5ff', 4: '#ffe0ff', 
+                5: '#ffd8ff', 6: '#ffd3ff', 7: '#ffcccc', 8 : '#ffffd4', 
+                9: '#ffffe0', 10: '#ffffe5', 11: '#fffff0', 12: '#ffffff'
+            }
+
+            
+            
+            // Create new wheel object specifying the parameters at creation time.
+            let theWheel = new Winwheel({
+                'numSegments'   : 12,   // Specify number of segments.
+                'outerRadius'   : outerRadius,  // Set outer radius.
+                'innerRadius'   : innerRadius,  // Set inner radius to make wheel hollow.
+                'responsive'   : true,  // This wheel is responsive!
+                'textFontFamily'    : 'sans-serif',
+                'textFontSize'  : 16,   // Set font size accordingly.
+                'textMargin'    : 10,    // Take out default margin.
+                'textOrientation' : 'curved',
+                'textAlignment' : 'outer',
+
+                'rotationAngle'   : -15,
+                'segments'      :       // Define segments including colour and text.
+                [
+                   {'fillStyle' : keyColors[1], 'text' : 'C'},
+                   {'fillStyle' : keyColors[2], 'text' : 'G (1#)'},
+                   {'fillStyle' : keyColors[3], 'text' : 'D (2#)'},
+                   {'fillStyle' : keyColors[4], 'text' : 'A (3#)'},
+                   {'fillStyle' : keyColors[5], 'text' : 'E (4#)'},
+                   {'fillStyle' : keyColors[6], 'text' : 'B (5#)\nCb (7b)'},
+                   {'fillStyle' : keyColors[7], 'text' : 'F# (6#)\nGb (6b)'},
+                   {'fillStyle' : keyColors[8], 'text' : 'C# (7#)\nDb (5b)'},
+                   {'fillStyle' : keyColors[9], 'text' : 'Ab (4b)'},
+                   {'fillStyle' : keyColors[10], 'text' : 'Eb (3b)'},
+                   {'fillStyle' : keyColors[11], 'text' : 'Bb (2b)'},
+                   {'fillStyle' : keyColors[12], 'text' : 'F (1b)'}
+                ],
+                'animation' :           // Define spin to stop animation.
+                {
+                    'type'     : 'spinToStop',
+                    'duration' : 5,
+                    'spins'    : 1,
+                    'callbackBefore': resetColors,
+                    'callbackFinished' : alertKey,
+                    // During the animation need to call function to re-draw triangle.
+                    'callbackAfter' : 'drawColourTriangle()'
+                }
+            });
+            
+            // dictionary of key name to notes
+            var scaleNotes = {
+                "C": "C major: C D E F G A B C",
+                "C# (7#)\nDb (5b)": "C# major: C# D# E# F# G# A# B# C# | Db major: Db Eb F Gb Ab Bb C Db<br>enharmonic scales",
+                "D (2#)": "D major: D E F# G A B C# D",
+                "Eb (3b)": "Eb major: Eb F G Ab Bb C D Eb",
+                "E (4#)": "E major: E F# G# A B C# D# E",
+                "F (1b)": "F major: F G A Bb C D E F",
+                "F# (6#)\nGb (6b)": "F# major: F# G# A# B C# D# E# F# | Gb major: Gb Ab Bb Cb Db Eb F Gb<br>enharmonic scales",
+                "G (1#)": "G major: G A B C D E F# G",
+                "Ab (4b)": "Ab major: Ab Bb C Db Eb F G Ab",
+                "A (3#)": "A major: A B C# D E F# G# A",
+                "Bb (2b)": "Bb major: Bb C D Eb F G A Bb",
+                "B (5#)\nCb (7b)": "B major: B C# D# E F# G# A# B | Cb major: Cb Db Eb Fb Gb Ab Bb Cb<br>enharmonic scales"
+            }
+
+            var toneJSNotes = {
+                "C": "C4 D4 E4 F4 G4 A4 B4 C5",
+                "C# (7#)\nDb (5b)": "Db4 Eb4 F4 Gb4 Ab4 Bb4 C5 Db5",
+                "D (2#)": "D4 E4 F#4 G4 A4 B4 C#5 D5",
+                "Eb (3b)": "Eb4 F4 G4 Ab4 Bb4 C5 D5 Eb5",
+                "E (4#)": "E4 F#4 G#4 A4 B4 C#5 D#5 E5",
+                "F (1b)": "F4 G4 A4 Bb4 C5 D5 E5 F5",
+                "F# (6#)\nGb (6b)": "Gb3 Ab3 Bb3 Cb4 Db4 Eb4 F4 Gb4",
+                "G (1#)": "G3 A3 B3 C4 D4 E4 F#4 G4",
+                "Ab (4b)": "Ab3 Bb3 C4 Db4 Eb4 F4 G4 Ab4",
+                "A (3#)": "A3 B3 C#4 D4 E4 F#4 G#4 A4",
+                "Bb (2b)": "Bb3 C4 D4 Eb4 F4 G4 A4 Bb4",
+                "B (5#)\nCb (7b)": "B3 C#4 D#4 E4 F#4 G#4 A#4 B4"
+            }
+
+            var keySigs = {
+                "C": "KSTs0.GIF",
+                "C# (7#)\nDb (5b)": "KSTf5.GIF",
+                "D (2#)": "KSTs2.GIF",
+                "Eb (3b)": "KSTf3.GIF",
+                "E (4#)": "KSTs4.GIF",
+                "F (1b)": "KSTf1.GIF",
+                "F# (6#)\nGb (6b)": "KSTs6.GIF",
+                "G (1#)": "KSTs1.GIF",
+                "Ab (4b)": "KSTf4.GIF",
+                "A (3#)": "KSTs3.GIF",
+                "Bb (2b)": "KSTf2.GIF",
+                "B (5#)\nCb (7b)": "KSTs5.GIF"
+            }
+            
+            // Vars used by the code in this page to do power controls.
+            let wheelPower    = 0;
+            let wheelSpinning = false;
+            let currentLoc = -15;
+            let indices = [];
+
+            document.getElementById('addFlat').className = "clickable, addFlat";
+            document.getElementById('addSharp').className = "clickable, addSharp";
+
+            // -------------------------------------------------------
+            // Function to handle the onClick on the power buttons.
+            // -------------------------------------------------------
+            function powerSelected(powerLevel)
+            {
+                theWheel.animation.duration = 5;
+                // Ensure that power can't be changed while wheel is spinning.
+                if (wheelSpinning == false) {
+                    // Reset all to grey incase this is not the first time the user has selected the power.
+                    document.getElementById('pw0').className = "";
+                    document.getElementById('pw1').className = "";
+                    document.getElementById('pw2').className = "";
+                    document.getElementById('pw3').className = "";
+
+                    // Now light up all cells below-and-including the one selected by changing the class.
+                    if (powerLevel >= 0) {
+                        document.getElementById('pw0').className = "pw0";
+                    }
+
+                    if (powerLevel >= 2) {
+                        document.getElementById('pw1').className = "pw1";
+                    }
+
+                    if (powerLevel >= 4) {
+                        document.getElementById('pw2').className = "pw2";
+                    }
+
+                    if (powerLevel >= 6) {
+                        document.getElementById('pw3').className = "pw3";
+                    }
+
+                    // Set wheelPower var used when spin button is clicked.
+                    wheelPower = powerLevel;
+
+                    // Light up the spin button by changing it's source image and adding a clickable class to it.
+                    document.getElementById('spin_button').src = "spin_on.png";
+                    document.getElementById('spin_button').className = "clickable";
+                }
+            }
+
+            function changeIndex(indexChange)
+            {
+                // Ensure that power can't be changed while wheel is spinning.
+                if (wheelSpinning == false) {
+                    // Reset all to grey incase this is not the first time the user has selected the power.
+                    document.getElementById('pw0').className = "";
+                    document.getElementById('pw1').className = "";
+                    document.getElementById('pw2').className = "";
+                    document.getElementById('pw3').className = "";
+
+                    // Set currentLoc var used when spin button is clicked.
+                    if(indexChange == 1) {
+                        document.getElementById('addFlat').className = "clickable, addFlat";
+                        theWheel.animation.direction = 'clockwise';
+                        currentLoc += 30;
+                        if(currentLoc > 360) {
+                            currentLoc = currentLoc % 30;
+                        }
+                        if(currentLoc == 15) {
+                            theWheel.animation.spins = 0;
+                        } else {
+                            theWheel.animation.spins = -1; 
+                        }
+                    } 
+                    if(indexChange == -1) {
+                        document.getElementById('addSharp').className = "clickable, addSharp";
+                        theWheel.animation.direction = 'anti-clockwise';
+                        if(currentLoc > 30) {
+                            currentLoc -= 30;
+                        } else {
+                            currentLoc += 330;
+                        }
+                        if(currentLoc == 345) {
+                            theWheel.animation.spins = 1;
+                        } else {
+                            theWheel.animation.spins = 0; 
+                        }
+                    } 
+                    theWheel.animation.duration = 1;
+                    // Important thing is to set the stopAngle of the animation before stating the spin.
+//                    theWheel.animation.stopAngle = currentLoc;
+                    theWheel.animation.stopAngle = -currentLoc;
+                    // Begin the spin animation by calling startAnimation on the wheel object.
+                    theWheel.startAnimation();
+
+                    // Set to true so that power can't be changed and spin button re-enabled during
+                    // the current animation. The user will have to reset before spinning again.
+                    wheelSpinning = true;
+                    stopIt();                    
+                }
+            }
+
+            // -------------------------------------------------------
+            // Click handler for spin button.
+            // -------------------------------------------------------
+            function startSpin()
+            {
+                theWheel.animation.direction = 'clockwise';
+                // Ensure that spinning can't be clicked again while already running.
+                if (wheelSpinning == false) {
+                    // Based on the power level selected adjust the number of spins for the wheel, the more times is has
+                    // to rotate with the duration of the animation the quicker the wheel spins.
+                    theWheel.animation.spins = wheelPower;
+
+                    // Disable the spin button so can't click again while wheel is spinning.
+                    document.getElementById('spin_button').src       = "spin_off.png";
+                    document.getElementById('spin_button').className = "";
+
+                    // Thess degree values will be centered inside each of the 12 segments.
+                    let stopDegree = [15,45,75,105,135,165,195,225,255,285,315,345]
+                    let stopIndex = Math.floor((Math.random() * 12));
+                    if(indices.length >= 12) {
+                        indices = []
+                    }
+                    while(indices.includes(stopIndex)) {
+                        stopIndex = (stopIndex+1) % 12;
+                    }
+                    indices.push(stopIndex);
+                    let stopAt = stopDegree[stopIndex];
+                    currentLoc = -stopAt;
+ 
+                    // Important thing is to set the stopAngle of the animation before stating the spin.
+                    theWheel.animation.stopAngle = stopAt;
+
+                    // Begin the spin animation by calling startAnimation on the wheel object.
+                    theWheel.startAnimation();
+
+                    // Set to true so that power can't be changed and spin button re-enabled during
+                    // the current animation. The user will have to reset before spinning again.
+                    wheelSpinning = true;
+                }
+            }
+
+			// Draw pointer on canvas, this time on the right.
+			function drawColourTriangle()
+			{
+				// Get context used by the wheel.
+				let ctx = theWheel.ctx;
+		 
+				ctx.strokeStyle = 'navy';  // Set line colour.
+				ctx.fillStyle   = 'red';  // Set fill colour.
+				ctx.lineWidth   = 2;
+				ctx.beginPath();           // Begin path.
+		        
+		        let startX = outerRadius+6;
+		        let startY = outerRadius/22;
+		        let halfWidth = 80;
+		        let height = 120;
+				ctx.moveTo(startX, startY);      // Move to initial position.
+				ctx.lineTo(startX-halfWidth, startY-height);      // Draw lines to make the shape.
+				ctx.lineTo(startX+halfWidth, startY-height);
+				ctx.lineTo(startX, startY);
+				ctx.stroke();              // Complete the path by stroking (draw lines).
+				ctx.fill();
+			}
+    
+            // -------------------------------------------------------
+            // Function to reset.  Called by alertKey()
+            // -------------------------------------------------------
+            function resetWheel()
+            {
+                theWheel.stopAnimation(false);  // Stop the animation, false as param so does not call callback function.
+                theWheel.rotationAngle = currentLoc;     // Set the wheel angle to where it is already.
+                theWheel.draw();                // Call draw to render changes to the wheel.
+				drawColourTriangle();  // Also re-draw the pointer, otherwise it disappears.
+
+                document.getElementById('pw0').className = "";  // Remove all colours from the power level indicators.
+                document.getElementById('pw1').className = "";
+                document.getElementById('pw2').className = "";
+                document.getElementById('pw3').className = "";
+
+                wheelSpinning = false;          // Reset to false to power buttons and spin can be clicked again.
+//                stopIt();
+            }
+
+            // -------------------------------------------------------
+            // Called when the spin animation has finished by the callback 
+            // feature of the wheel because I specified callback in the parameters.
+            // note the indicated segment is passed in as a parmeter as 99% of 
+            // the time you will want to know this to inform the user.
+            // -------------------------------------------------------
+            function alertKey(indicatedSegment)
+            {
+                // Do basic alert of the segment text. You would probably want to do something more interesting with this information.
+                document.getElementById('message').innerHTML = scaleNotes[indicatedSegment.text];
+                toneJSScale = toneJSNotes[indicatedSegment.text];
+                var imageURL = imagePath;
+                imageURL += keySigs[indicatedSegment.text]
+                var imageCode = '<img src="'+imageURL+'">'
+                document.getElementById('keySig').innerHTML = imageCode;
+
+                playScale();
+		 
+				// Get the number of the winning segment.
+				let keyIndex = theWheel.getIndicatedSegmentNumber();
+
+                resetColors();
+				// Highlight the current key with yellow.
+				theWheel.segments[keyIndex].fillStyle = 'yellow';
+				// Call draw function to render changes.
+				theWheel.draw();		 
+				// Also re-draw the pointer, otherwise it disappears.
+				drawColourTriangle();
+
+                setTimeout(resetWheel, 50);
+                setTimeout(stopIt, 7750);
+            }
+
+            function resetColors() {
+            	// Loop and set fillStyle of all segments to default colors.
+				for (let x = 1; x < theWheel.segments.length; x ++) {
+					theWheel.segments[x].fillStyle = keyColors[x];
+				}
+            }
+//----------------------- Tone.js ------------------------------------
+			function stopIt(){
+				Tone.Transport.stop();
+				Tone.Transport.cancel(0);
+			}
+
+            // plays the selected scale.  Called by alertKey()
+			function playScale(){
+			   var synth = new Tone.Synth().toMaster();
+			   var myScale = toneJSScale.split(' ');
+			   var patternName = 'upDown';
+			   var pattern = new Tone.Pattern(function(time, note){
+				   //the order of the notes passed in depends on the pattern
+				   synth.triggerAttackRelease(note, "4n", time);
+			   }, myScale, patternName).start(0);    
+			   pattern.loop = 1;
+			   var tempo = 120;
+			   var volume = -10;
+			   Tone.Transport.bpm.value = tempo   
+			   synth.volume.value = volume;
+			   Tone.Transport.start("+0.1");
+			   Tone.Transport.stop("+3m+2n+4n");
+			   Tone.Transport.cancel(7.5);
+			}
+
+/*-------------------------------- not needed -----------------------------------
+var MIDI_SHARP_NAMES = ['B#_0',  'C#_1', 'Cx_1', 'D#_1',   'E_1',  'E#_1',  'F#_1', 'Fx_1',  'G#_1', 'Gx_1', 'A#_1', 'B_1',
+                    'B#_1', 'C#0', 'Cx0', 'D#0', 'E0', 'E#0', 'F#0', 'Fx0', 'G#0', 'Gx0', 'A#0', 'B0',
+                    'B#0', 'C#1', 'Cx1', 'D#1', 'E1', 'E#1', 'F#1', 'Fx1', 'G#1', 'Gx1', 'A#1', 'B1',
+                    'B#1', 'C#2', 'Cx2', 'D#2', 'E2', 'E#2', 'F#2', 'Fx2', 'G#2', 'Gx2', 'A#2', 'B2',
+                    'B#2', 'C#3', 'Cx3', 'D#3', 'E3', 'E#3', 'F#3', 'Fx3', 'G#3', 'Gx3', 'A#3', 'B3',
+                    'B#3', 'C#4', 'Cx4', 'D#4', 'E4', 'E#4', 'F#4', 'Fx4', 'G#4', 'Gx4', 'A#4', 'B4',
+                    'B#4', 'C#5', 'Cx5', 'D#5', 'E5', 'E#5', 'F#5', 'Fx5', 'G#5', 'Gx5', 'A#5', 'B5',
+                    'B#5', 'C#6', 'Cx6', 'D#6', 'E6', 'E#6', 'F#6', 'Fx6', 'G#6', 'Gx6', 'A#6', 'B6',
+                    'B#6', 'C#7', 'Cx7', 'D#7', 'E7', 'E#7', 'F#7', 'Fx7', 'G#7', 'Gx7', 'A#7', 'B7',
+                    'B#7', 'C#8', 'Cx8', 'D#8', 'E8', 'E#8', 'F#8', 'Fx8', 'G#8', 'Gx8', 'A#8', 'B8',
+                    'B#8', 'C#9', 'Cx9', 'D#9', 'E9', 'E#9', 'F#9', 'Fx9'];
+                          
+
+var MIDI_FLAT_NAMES = ['C_1', 'Db_1', 'D_1', 'Eb_1', 'Fb_1', 'F_1', 'Gb_1', 'G_1', 'Ab_1', 'A_1', 'Bb_1', 'Cb0',
+                    'C0', 'Db0', 'D0', 'Eb0', 'Fb0', 'F0', 'Gb0', 'G0', 'Ab0', 'A0', 'Bb0', 'Cb1',
+                    'C1', 'Db1', 'D1', 'Eb1', 'Fb1', 'F1', 'Gb1', 'G1', 'Ab1', 'A1', 'Bb1', 'Cb2',
+                    'C2', 'Db2', 'D2', 'Eb2', 'Fb2', 'F2', 'Gb2', 'G2', 'Ab2', 'A2', 'Bb2', 'Cb3',
+                    'C3', 'Db3', 'D3', 'Eb3', 'Fb3', 'F3', 'Gb3', 'G3', 'Ab3', 'A3', 'Bb3', 'Cb4',
+                    'C4', 'Db4', 'D4', 'Eb4', 'Fb4', 'F4', 'Gb4', 'G4', 'Ab4', 'A4', 'Bb4', 'Cb5',
+                    'C5', 'Db5', 'D5', 'Eb5', 'Fb5', 'F5', 'Gb5', 'G5', 'Ab5', 'A5', 'Bb5', 'Cb6',
+                    'C6', 'Db6', 'D6', 'Eb6', 'Fb6', 'F6', 'Gb6', 'G6', 'Ab6', 'A6', 'Bb6', 'Cb7',
+                    'C7', 'Db7', 'D7', 'Eb7', 'Fb7', 'F7', 'Gb7', 'G7', 'Ab7', 'A7', 'Bb7', 'Cb8',
+                    'C8', 'Db8', 'D8', 'Eb8', 'Fb8', 'F8', 'Gb8', 'G8', 'Ab8', 'A8', 'Bb8', 'Cb9',
+                    'C9', 'Db9', 'D9', 'Eb9', 'Fb9', 'F9', 'Gb9', 'G9'];
+
+
+
+			function noteNameToMIDI(noteName)  {
+				var i;
+				var MIDInumber = -1; // default if not found
+				// check both arrays for the noteName
+				for(i=0; i < MIDI_SHARP_NAMES.length; i++) {
+					if( noteName == MIDI_SHARP_NAMES[i] ||
+							noteName == MIDI_FLAT_NAMES[i] ) {
+						MIDInumber = i;  // found it
+					}
+				}
+				return Number(MIDInumber); // it should be a number already, but...
+			}
+			
+			var MAJOR_SCALE = [0,2,4,5,7,9,11,12];
+			
+			function makeScale(scaleFormula, keyNameAndOctave) {
+				var ALPHA_NAMES = ['A','B','C','D','E','F','G'];
+				var startingName = keyNameAndOctave;
+				var offset;
+				for(var i=0; i<ALPHA_NAMES.length; i++) {
+					if(startingName.includes(ALPHA_NAMES[i])) {
+						offset = i;
+						break;
+					}
+				}
+				var startingNote = noteNameToMIDI(keyNameAndOctave);
+				var myScaleFormula = scaleFormula;
+				var myScale = [];
+				for(var i=0; i < myScaleFormula.length; i++) {
+					if(MIDI_SHARP_NAMES[myScaleFormula[i] + startingNote].includes(ALPHA_NAMES[(offset+i) % ALPHA_NAMES.length])) {
+						myScale.push( MIDI_SHARP_NAMES[myScaleFormula[i] + startingNote] );
+					} else if(MIDI_FLAT_NAMES[myScaleFormula[i] + startingNote].includes(ALPHA_NAMES[(offset+i) % ALPHA_NAMES.length])) {
+						myScale.push( MIDI_FLAT_NAMES[myScaleFormula[i] + startingNote] );
+					} else {
+						myScale.push("C7"); // high note used to indicate error
+					}
+				}
+				return myScale;
+			}
+//-------------------------------------------------*/
+
+        </script>
+    </body>
+</html>

@@ -60,7 +60,7 @@
                             <br />
                             <table class="power" cellpadding="10" cellspacing="0">
                                 <tr>
-                                    <th align="center">Power</th>
+                                    <th align="center">Spin-a-Key</th>
                                 </tr>
                                 <tr>
                                     <td width="78" align="center" id="pw3" onClick="powerSelected(6);">High</td>
@@ -401,8 +401,7 @@
                 var imageCode = '<img src="'+imageURL+'">'
                 document.getElementById('keySig').innerHTML = imageCode;
 
-                playScale();
-
+                Notation.clearLastAnimatedNote();
 		        Notation.setNoteSpacing(40);
 		        Notation.clearCanvas();
 		        Notation.drawTheStaff(400);
@@ -414,6 +413,7 @@
 		        }
 		        Notation.drawScale(scale_notes, scale_durations);
 
+                playScale();
 		        // Get the number of the winning segment.
 		        let keyIndex = theWheel.getIndicatedSegmentNumber();
 
@@ -446,10 +446,12 @@
 	    function playScale(){
 	        var synth = new Tone.Synth().toMaster();
 		var myScale = toneJSScale.split(' ');
-		var patternName = 'upDown';
+		var patternName = 'up';
 		var pattern = new Tone.Pattern(function(time, note){
 		   //the order of the notes passed in depends on the pattern
 		   synth.triggerAttackRelease(note, "4n", time);
+		   // animate the notes
+            Notation.drawTheColoredNote(note, "#CC0000");   
 		}, myScale, patternName).start(0);    
 		pattern.loop = 1;
 		var tempo = 120;

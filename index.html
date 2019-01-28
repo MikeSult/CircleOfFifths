@@ -46,32 +46,15 @@
     <body>
         <div align="center">
             <h1>Circle of Fifths</h1>
-            <br>
 
-	    <!-- Canvas where the notation is displayed -->
-	    <canvas id="myCanvas" width="450" height="120">
-	    Your browser does not support the canvas element.
-	    </canvas>
+	        <!-- Canvas where the notation is displayed -->
+	        <canvas id="myCanvas" width="450" height="120">
+	        Your browser does not support the canvas element.
+	        </canvas>
 
             <table cellpadding="0" cellspacing="0" border="0">
                 <tr>
                     <td>
-                        <div class="">
-
-                            <table class="power" cellpadding="10" cellspacing="0">
-                                <tr>
-                                    <th colspan="2" align="center">Set Key</th>
-                                </tr>
-                                <tr>
-                                    <td align="center" id="addFlat" onClick="changeIndex(+1);">+1 b or -1 #</td>
-                                    <td align="center" id="addSharp" onClick="changeIndex(-1);">+1 # or -1 b</td>
-                                </tr>
-                                <tr>
-                                    <th colspan="2" align="center" width=120 height=77>&nbsp;<span id="keySig"></span></th>
-                                </tr>
-                        </div>
-                            <br />
-                            <br />
                         <div class="power_controls">
                             <br />
                             <br />
@@ -97,11 +80,26 @@
                             <br />
                         </div>
                     </td>
-                    <td width="438" height="582" class="the_wheel" align="center" valign="center">
+                    <td width="438" height="482" class="the_wheel" align="center" valign="center">
                         <canvas id="canvas" width="434" height="434">
                             <p style="{color: white}" align="center">Sorry, your browser doesn't support canvas. Please try another.</p>
                         </canvas>
                     </td>
+                    <td>
+                        <div class="">
+                            <table class="power" cellpadding="10" cellspacing="0">
+                                <tr>
+                                    <th colspan="2" align="center">Set Key</th>
+                                </tr>
+                                <tr>
+                                    <td align="center" id="addFlat" onClick="changeIndex(+1);">+1 b or -1 #</td>
+                                    <td align="center" id="addSharp" onClick="changeIndex(-1);">+1 # or -1 b</td>
+                                </tr>
+                                <tr>
+                                    <th colspan="2" align="center" width=120 height=77>&nbsp;<span id="keySig"></span></th>
+                                </tr>
+                        </div>
+                    <td/>
                 </tr>
             </table>
         </div>
@@ -397,7 +395,6 @@
             function alertKey(indicatedSegment)
             {
                 // Do basic alert of the segment text. You would probably want to do something more interesting with this information.
-                document.getElementById('message').innerHTML = scaleNotes[indicatedSegment.text];
                 toneJSScale = toneJSNotes[indicatedSegment.text];
                 var imageURL = imagePath;
                 imageURL += keySigs[indicatedSegment.text]
@@ -406,27 +403,27 @@
 
                 playScale();
 
-		Notation.setNoteSpacing(40);
-		Notation.clearCanvas();
-		Notation.drawTheStaff(400);
-		Notation.drawClef("treble");
-		var scale_notes = toneJSScale.split(" ");
-		var scale_durations = [];
-		for(var i=0; i<scale_notes.length; i++) {
-		    scale_durations.push('q');
-		}
-		Notation.drawScale(scale_notes, scale_durations);
+		        Notation.setNoteSpacing(40);
+		        Notation.clearCanvas();
+		        Notation.drawTheStaff(400);
+		        Notation.drawClef("treble");
+		        var scale_notes = toneJSScale.split(" ");
+		        var scale_durations = [];
+		        for(var i=0; i<scale_notes.length; i++) {
+		            scale_durations.push('q');
+		        }
+		        Notation.drawScale(scale_notes, scale_durations);
 
-		// Get the number of the winning segment.
-		let keyIndex = theWheel.getIndicatedSegmentNumber();
+		        // Get the number of the winning segment.
+		        let keyIndex = theWheel.getIndicatedSegmentNumber();
 
                 resetColors();
-		// Highlight the current key with yellow.
-		theWheel.segments[keyIndex].fillStyle = 'yellow';
-		// Call draw function to render changes.
-		theWheel.draw();		 
-		// Also re-draw the pointer, otherwise it disappears.
-		drawColourTriangle();
+		        // Highlight the current key with yellow.
+		        theWheel.segments[keyIndex].fillStyle = 'yellow';
+		        // Call draw function to render changes.
+		        theWheel.draw();		 
+		        // Also re-draw the pointer, otherwise it disappears.
+		        drawColourTriangle();
 
                 setTimeout(resetWheel, 50);
                 var delay = scale_notes.length * 500;

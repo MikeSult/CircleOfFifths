@@ -30,6 +30,7 @@
     - use circle as musical 'Circle of Fifths'
     - added sounds using Tone.js
     - added key signature images
+    - added notation of scale
 -->
 <html>
     <head>
@@ -46,7 +47,12 @@
         <div align="center">
             <h1>Circle of Fifths</h1>
             <br>
-            <h2 id="message">C major: C D E F G A B C</h2>
+
+	    <!-- Canvas where the notation is displayed -->
+	    <canvas id="myCanvas" width="450" height="120">
+	    Your browser does not support the canvas element.
+	    </canvas>
+
             <table cellpadding="0" cellspacing="0" border="0">
                 <tr>
                     <td>
@@ -339,28 +345,28 @@
                 }
             }
 
-			// Draw pointer on canvas, this time on the right.
-			function drawColourTriangle()
-			{
-				// Get context used by the wheel.
-				let ctx = theWheel.ctx;
+		// Draw pointer on canvas, this time on the right.
+		function drawColourTriangle()
+		{
+			// Get context used by the wheel.
+			let ctx = theWheel.ctx;
 		 
-				ctx.strokeStyle = 'navy';  // Set line colour.
-				ctx.fillStyle   = 'red';  // Set fill colour.
-				ctx.lineWidth   = 2;
-				ctx.beginPath();           // Begin path.
+			ctx.strokeStyle = 'navy';  // Set line colour.
+			ctx.fillStyle   = 'red';  // Set fill colour.
+			ctx.lineWidth   = 2;
+			ctx.beginPath();           // Begin path.
 		        
 		        let startX = outerRadius+6;
 		        let startY = outerRadius/22;
 		        let halfWidth = 80;
 		        let height = 120;
-				ctx.moveTo(startX, startY);      // Move to initial position.
-				ctx.lineTo(startX-halfWidth, startY-height);      // Draw lines to make the shape.
-				ctx.lineTo(startX+halfWidth, startY-height);
-				ctx.lineTo(startX, startY);
-				ctx.stroke();              // Complete the path by stroking (draw lines).
-				ctx.fill();
-			}
+			ctx.moveTo(startX, startY);      // Move to initial position.
+			ctx.lineTo(startX-halfWidth, startY-height);      // Draw lines to make the shape.
+			ctx.lineTo(startX+halfWidth, startY-height);
+			ctx.lineTo(startX, startY);
+			ctx.stroke();              // Complete the path by stroking (draw lines).
+			ctx.fill();
+		}
     
             // -------------------------------------------------------
             // Function to reset.  Called by alertKey()
@@ -398,20 +404,32 @@
                 document.getElementById('keySig').innerHTML = imageCode;
 
                 playScale();
-		 
-				// Get the number of the winning segment.
-				let keyIndex = theWheel.getIndicatedSegmentNumber();
+
+		Notation.setNoteSpacing(40);
+		Notation.clearCanvas();
+		Notation.drawTheStaff(400);
+		Notation.drawClef("treble");
+		var scale_notes = toneJSScale.split(" ");
+		var scale_durations = [];
+		for(var i=0; i<scale_notes.length; i++) {
+		    scale_durations.push('q');
+		}
+		Notation.drawScale(scale_notes, scale_durations);
+
+		// Get the number of the winning segment.
+		let keyIndex = theWheel.getIndicatedSegmentNumber();
 
                 resetColors();
-				// Highlight the current key with yellow.
-				theWheel.segments[keyIndex].fillStyle = 'yellow';
-				// Call draw function to render changes.
-				theWheel.draw();		 
-				// Also re-draw the pointer, otherwise it disappears.
-				drawColourTriangle();
+		// Highlight the current key with yellow.
+		theWheel.segments[keyIndex].fillStyle = 'yellow';
+		// Call draw function to render changes.
+		theWheel.draw();		 
+		// Also re-draw the pointer, otherwise it disappears.
+		drawColourTriangle();
 
                 setTimeout(resetWheel, 50);
-                setTimeout(stopIt, 7750);
+                var delay = scale_notes.length * 500;
+                setTimeout(stopIt, delay);
             }
 
             function resetColors() {
@@ -421,29 +439,29 @@
 				}
             }
 //----------------------- Tone.js ------------------------------------
-			function stopIt(){
-				Tone.Transport.stop();
-				Tone.Transport.cancel(0);
-			}
+	    function stopIt(){
+		Tone.Transport.stop();
+		Tone.Transport.cancel(0);
+	    }
 
             // plays the selected scale.  Called by alertKey()
-			function playScale(){
-			   var synth = new Tone.Synth().toMaster();
-			   var myScale = toneJSScale.split(' ');
-			   var patternName = 'upDown';
-			   var pattern = new Tone.Pattern(function(time, note){
-				   //the order of the notes passed in depends on the pattern
-				   synth.triggerAttackRelease(note, "4n", time);
-			   }, myScale, patternName).start(0);    
-			   pattern.loop = 1;
-			   var tempo = 120;
-			   var volume = -10;
-			   Tone.Transport.bpm.value = tempo   
-			   synth.volume.value = volume;
-			   Tone.Transport.start("+0.1");
-			   Tone.Transport.stop("+3m+2n+4n");
-			   Tone.Transport.cancel(7.5);
-			}
+	    function playScale(){
+	        var synth = new Tone.Synth().toMaster();
+		var myScale = toneJSScale.split(' ');
+		var patternName = 'upDown';
+		var pattern = new Tone.Pattern(function(time, note){
+		   //the order of the notes passed in depends on the pattern
+		   synth.triggerAttackRelease(note, "4n", time);
+		}, myScale, patternName).start(0);    
+		pattern.loop = 1;
+		var tempo = 120;
+		var volume = -10;
+		Tone.Transport.bpm.value = tempo   
+		synth.volume.value = volume;
+		Tone.Transport.start("+0.1");
+                var delay = myScale.length * .5;
+		Tone.Transport.stop("+"+delay);
+	    }
 
 /*-------------------------------- not needed -----------------------------------
 var MIDI_SHARP_NAMES = ['B#_0',  'C#_1', 'Cx_1', 'D#_1',   'E_1',  'E#_1',  'F#_1', 'Fx_1',  'G#_1', 'Gx_1', 'A#_1', 'B_1',

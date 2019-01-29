@@ -105,5 +105,5 @@ td.pw3
 
 @font-face {
     font-family: MusiSync;
-    src: local(MusiSync), url('fonts/MusiSync.ttf') format('opentype');
+    src: url('https://www.guitarland.com/fonts/MusiSync.ttf') format('opentype');
 }

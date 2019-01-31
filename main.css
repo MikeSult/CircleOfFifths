@@ -53,23 +53,53 @@ table.power th
     cursor: default;
 }
 
-td.addFlat
+table.whiteBG
 {
-    background-color: #f0a0a0;
+    background-color: #ffffff;
     border:1px solid #333333;
 }
 
-td.addSharp
+td.whiteBG {
+    background-color: white;
+}
+
+tr.flatSharp
 {
-    background-color: #a0a0f0;
+    background-color: #ffffff;
     border:1px solid #333333;
+}
+
+td.plusFlat {
+    background-color: #ffffff;
+}
+
+td.plusFlat {
+    background-color: #ffffff;
 }
 
 td.keySig
 {
     width: 120;
-    height: 77
+    height: 77;
+    background-color: white;
 }
+
+button#addFlat
+{
+    background-color: #f0a0a0;
+    border:1px solid #333333;
+    width: 100;
+    height: 40;
+}
+
+button#addSharp
+{
+    background-color: #a0a0f0;
+    border:1px solid #333333;
+    width: 100;
+    height: 40;
+}
+
 
 td.pw0
 {

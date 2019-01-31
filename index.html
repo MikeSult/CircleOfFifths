@@ -34,13 +34,19 @@
 -->
 <html>
     <head>
-        <title>HTML5 Canvas Circle of Fifths</title>
+        <title>HTML5 Canvas - Circle of Fifths</title>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
         <link rel="stylesheet" href="main.css" type="text/css" />
         <script type="text/javascript" src="./Winwheel.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>
-    <script type="text/javascript" src="https://www.guitarland.com/javascripts/Tone.js"></script>
-	<script type="text/javascript" src="https://www.guitarland.com/javascripts/StartAudioContext.js"></script>
 
+<!--    <script type="text/javascript" src="https://www.guitarland.com/javascripts/Tone.js"></script> -->
+    <script type="text/javascript" src="https://tonejs.github.io/build/Tone.js"></script>
+
+	<script type="text/javascript" src="https://www.guitarland.com/javascripts/StartAudioContext.js"></script>
+<!--    <script src="https://www.guitarland.com/javascripts/Rhythm.js"></script> -->
 
     </head>
     <body>
@@ -87,16 +93,16 @@
                     </td>
                     <td>
                         <div class="">
-                            <table class="power" cellpadding="10" cellspacing="0">
+                            <table class="whiteBG" cellpadding="10" cellspacing="0">
                                 <tr>
                                     <th colspan="2" align="center">Set Key</th>
                                 </tr>
-                                <tr>
-                                    <td align="center" id="addFlat" onClick="changeIndex(+1);">+1 b or -1 #</td>
-                                    <td align="center" id="addSharp" onClick="changeIndex(-1);">+1 # or -1 b</td>
+                                <tr id="flatSharp">
+                                    <td align="center" id='plusFlat'><button id="addFlat" onClick="changeIndex(+1);">+1 b or -1 #</button></td>
+                                    <td align="center" id='plusSharp'><button id="addSharp" onClick="changeIndex(-1);">+1 # or -1 b</button></td>
                                 </tr>
                                 <tr>
-                                    <th colspan="2" align="center" width=120 height=77>&nbsp;<span id="keySig"></span></th>
+                                    <td colspan="2" align="center" width=120 height=77 class='whiteBG'>&nbsp;<span id="keySig"></span></td>
                                 </tr>
                         </div>
                     <td/>
@@ -194,7 +200,7 @@
                 "Eb (3b)": "KSTf3.GIF",
                 "E (4#)": "KSTs4.GIF",
                 "F (1b)": "KSTf1.GIF",
-                "F# (6#)\nGb (6b)": "KSTs6.GIF",
+                "F# (6#)\nGb (6b)": "KSTf6.GIF",
                 "G (1#)": "KSTs1.GIF",
                 "Ab (4b)": "KSTf4.GIF",
                 "A (3#)": "KSTs3.GIF",
@@ -208,8 +214,10 @@
             let currentLoc = -15;
             let indices = [];
 
-            document.getElementById('addFlat').className = "clickable, addFlat";
-            document.getElementById('addSharp').className = "clickable, addSharp";
+//            document.getElementById('addFlat').className = "clickable, addFlat";
+//            document.getElementById('addSharp').className = "clickable, addSharp";
+            document.getElementById('addFlat').className = "clickable";
+            document.getElementById('addSharp').className = "clickable";
 
             // -------------------------------------------------------
             // Function to handle the onClick on the power buttons.
@@ -355,10 +363,10 @@
 			ctx.lineWidth   = 2;
 			ctx.beginPath();           // Begin path.
 		        
-		        let startX = outerRadius+6;
-		        let startY = outerRadius/22;
-		        let halfWidth = 80;
-		        let height = 120;
+		    let startX = outerRadius+6;
+		    let startY = outerRadius/22;
+		    let halfWidth = 80;
+		    let height = 120;
 			ctx.moveTo(startX, startY);      // Move to initial position.
 			ctx.lineTo(startX-halfWidth, startY-height);      // Draw lines to make the shape.
 			ctx.lineTo(startX+halfWidth, startY-height);
@@ -383,7 +391,6 @@
                 document.getElementById('pw3').className = "";
 
                 wheelSpinning = false;          // Reset to false to power buttons and spin can be clicked again.
-//                stopIt();
             }
 
             // -------------------------------------------------------
@@ -412,8 +419,27 @@
 		            scale_durations.push('q');
 		        }
 		        Notation.drawScale(scale_notes, scale_durations);
+	            var myStrArray = toneJSScale.split(' ');
 
-                playScale();
+//                var myDurs = "24,24,24,24,24,24,24,24";
+//                Rhythm.setDurationString(myDurs, myStrArray, 1);
+//                var myScale = Rhythm.getMelodyWithRhythm(1);
+
+                var myTimeArray = ['1:0','1:1','1:2','1:3','2:0','2:1','2:2','2:3'];
+                var oneCell = [];
+		        var myScale = [];
+		        for(var i=0; i<myStrArray.length; i++) {
+		            oneCell = [];
+		            oneCell.push(myTimeArray[i]);
+		            oneCell.push(myStrArray[i]);
+		            myScale.push(oneCell);
+		        }
+
+//                console.log('before playMyScale()');
+
+                playMyScale(myScale);
+
+//                console.log('after playMyScale()');
 		        // Get the number of the winning segment.
 		        let keyIndex = theWheel.getIndicatedSegmentNumber();
 
@@ -438,29 +464,40 @@
             }
 //----------------------- Tone.js ------------------------------------
 	    function stopIt(){
-		Tone.Transport.stop();
-		Tone.Transport.cancel(0);
+		    Tone.Transport.stop();
+		    Tone.Transport.cancel(0);
 	    }
 
-            // plays the selected scale.  Called by alertKey()
-	    function playScale(){
-	        var synth = new Tone.Synth().toMaster();
-		var myScale = toneJSScale.split(' ');
-		var patternName = 'up';
-		var pattern = new Tone.Pattern(function(time, note){
-		   //the order of the notes passed in depends on the pattern
-		   synth.triggerAttackRelease(note, "4n", time);
-		   // animate the notes
-            Notation.drawTheColoredNote(note, "#CC0000");   
-		}, myScale, patternName).start(0);    
-		pattern.loop = 1;
-		var tempo = 120;
-		var volume = -10;
-		Tone.Transport.bpm.value = tempo   
-		synth.volume.value = volume;
-		Tone.Transport.start("+0.1");
-                var delay = myScale.length * .5;
-		Tone.Transport.stop("+"+delay);
+        var synth;
+        var myPart;
+        // plays the selected scale.  Called by alertKey()
+	    function playMyScale(scale){
+	        Tone.context.resume();
+            if (synth){
+		        synth.dispose();
+                synth = null;
+            }
+	        synth = new Tone.Synth().toMaster();
+            if(myPart !== undefined) {
+                myPart.dispose();
+            }
+            myPart = new Tone.Part(function(time, note){
+		        synth.triggerAttackRelease(note, "4n", time);
+		        // animate the notes
+                Notation.drawTheColoredNote(note, "#CC0000");
+                console.log('drawTheColoredNote('+note+')');
+		    }, scale);    
+		    myPart.loop = false;
+		    var tempo = 120;
+		    var volume = -10;
+		    Tone.Transport.bpm.value = tempo   
+		    synth.volume.value = volume;
+		    myPart.start(0, "1:0");
+		    console.log('before Tone.Transport.start');
+		    Tone.Transport.start("+0.1");
+		    console.log('after Tone.Transport.start');
+//            var delay = 4;
+//		    Tone.Transport.stop("+"+delay);
 	    }
 
 /*-------------------------------- not needed -----------------------------------

@@ -53,10 +53,12 @@
         <div align="center">
             <h1>Circle of Fifths</h1>
 
+
 	        <!-- Canvas where the notation is displayed -->
 	        <canvas id="myCanvas" width="450" height="120">
 	        Your browser does not support the canvas element.
 	        </canvas>
+<button onClick="playMyScale();">Play the Scale</button>
 
             <table cellpadding="0" cellspacing="0" border="0">
                 <tr>
@@ -102,8 +104,12 @@
                                     <td align="center" id='plusSharp'><button id="addSharp" onClick="changeIndex(-1);">+1 # or -1 b</button></td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2" align="center" width=120 height=77 class='whiteBG'>&nbsp;<span id="keySig"></span></td>
+                                    <th colspan="2" align="center">Key Signature</th>
                                 </tr>
+                                <tr>
+                                    <td colspan="2" align="center" width=120 height=77 class='whiteBG'>&nbsp;<span id="keySig"><img src="./KeySignatures/KSTs0.GIF"></span></td>
+                                </tr>
+                            </table>
                         </div>
                     <td/>
                 </tr>
@@ -114,6 +120,7 @@
             const imagePath = './KeySignatures/';
             const outerRadius = 212;
             const innerRadius = 100;
+            let myScale = [['1:0','C4'],['1:1','D4'],['1:2','E4'],['1:3','F4'],['2:0','G4'],['2:1','A4'],['2:2','B4'],['2:3','C5']];
             let toneJSScale = '';
             let keyColors = {1: '#ffffff', 2: '#fff0ff', 3: '#ffe5ff', 4: '#ffe0ff', 
                 5: '#ffd8ff', 6: '#ffd3ff', 7: '#ffcccc', 8 : '#ffffd4', 
@@ -218,6 +225,13 @@
 //            document.getElementById('addSharp').className = "clickable, addSharp";
             document.getElementById('addFlat').className = "clickable";
             document.getElementById('addSharp').className = "clickable";
+            var startingScale = ["C4","D4","E4","F4","G4","A4","B4","C5"];
+            var startingDurs = ["q","q","q","q","q","q","q","q"];
+			Notation.setNoteSpacing(40);
+			Notation.clearCanvas();
+			Notation.drawTheStaff(400);
+			Notation.drawClef("treble");
+			Notation.drawScale(startingScale, startingDurs);
 
             // -------------------------------------------------------
             // Function to handle the onClick on the power buttons.
@@ -427,7 +441,7 @@
 
                 var myTimeArray = ['1:0','1:1','1:2','1:3','2:0','2:1','2:2','2:3'];
                 var oneCell = [];
-		        var myScale = [];
+                myScale = [];
 		        for(var i=0; i<myStrArray.length; i++) {
 		            oneCell = [];
 		            oneCell.push(myTimeArray[i]);
@@ -437,7 +451,7 @@
 
 //                console.log('before playMyScale()');
 
-                playMyScale(myScale);
+                playMyScale();
 
 //                console.log('after playMyScale()');
 		        // Get the number of the winning segment.
@@ -471,8 +485,10 @@
         var synth;
         var myPart;
         // plays the selected scale.  Called by alertKey()
-	    function playMyScale(scale){
+	    function playMyScale(){
 	        Tone.context.resume();
+	        if(!myScale) { return; }
+
             if (synth){
 		        synth.dispose();
                 synth = null;
@@ -486,7 +502,7 @@
 		        // animate the notes
                 Notation.drawTheColoredNote(note, "#CC0000");
                 console.log('drawTheColoredNote('+note+')');
-		    }, scale);    
+		    }, myScale);    
 		    myPart.loop = false;
 		    var tempo = 120;
 		    var volume = -10;
@@ -496,79 +512,9 @@
 		    console.log('before Tone.Transport.start');
 		    Tone.Transport.start("+0.1");
 		    console.log('after Tone.Transport.start');
-//            var delay = 4;
-//		    Tone.Transport.stop("+"+delay);
+            var delay = 4.1;
+		    Tone.Transport.stop("+"+delay);
 	    }
-
-/*-------------------------------- not needed -----------------------------------
-var MIDI_SHARP_NAMES = ['B#_0',  'C#_1', 'Cx_1', 'D#_1',   'E_1',  'E#_1',  'F#_1', 'Fx_1',  'G#_1', 'Gx_1', 'A#_1', 'B_1',
-                    'B#_1', 'C#0', 'Cx0', 'D#0', 'E0', 'E#0', 'F#0', 'Fx0', 'G#0', 'Gx0', 'A#0', 'B0',
-                    'B#0', 'C#1', 'Cx1', 'D#1', 'E1', 'E#1', 'F#1', 'Fx1', 'G#1', 'Gx1', 'A#1', 'B1',
-                    'B#1', 'C#2', 'Cx2', 'D#2', 'E2', 'E#2', 'F#2', 'Fx2', 'G#2', 'Gx2', 'A#2', 'B2',
-                    'B#2', 'C#3', 'Cx3', 'D#3', 'E3', 'E#3', 'F#3', 'Fx3', 'G#3', 'Gx3', 'A#3', 'B3',
-                    'B#3', 'C#4', 'Cx4', 'D#4', 'E4', 'E#4', 'F#4', 'Fx4', 'G#4', 'Gx4', 'A#4', 'B4',
-                    'B#4', 'C#5', 'Cx5', 'D#5', 'E5', 'E#5', 'F#5', 'Fx5', 'G#5', 'Gx5', 'A#5', 'B5',
-                    'B#5', 'C#6', 'Cx6', 'D#6', 'E6', 'E#6', 'F#6', 'Fx6', 'G#6', 'Gx6', 'A#6', 'B6',
-                    'B#6', 'C#7', 'Cx7', 'D#7', 'E7', 'E#7', 'F#7', 'Fx7', 'G#7', 'Gx7', 'A#7', 'B7',
-                    'B#7', 'C#8', 'Cx8', 'D#8', 'E8', 'E#8', 'F#8', 'Fx8', 'G#8', 'Gx8', 'A#8', 'B8',
-                    'B#8', 'C#9', 'Cx9', 'D#9', 'E9', 'E#9', 'F#9', 'Fx9'];
-                          
-
-var MIDI_FLAT_NAMES = ['C_1', 'Db_1', 'D_1', 'Eb_1', 'Fb_1', 'F_1', 'Gb_1', 'G_1', 'Ab_1', 'A_1', 'Bb_1', 'Cb0',
-                    'C0', 'Db0', 'D0', 'Eb0', 'Fb0', 'F0', 'Gb0', 'G0', 'Ab0', 'A0', 'Bb0', 'Cb1',
-                    'C1', 'Db1', 'D1', 'Eb1', 'Fb1', 'F1', 'Gb1', 'G1', 'Ab1', 'A1', 'Bb1', 'Cb2',
-                    'C2', 'Db2', 'D2', 'Eb2', 'Fb2', 'F2', 'Gb2', 'G2', 'Ab2', 'A2', 'Bb2', 'Cb3',
-                    'C3', 'Db3', 'D3', 'Eb3', 'Fb3', 'F3', 'Gb3', 'G3', 'Ab3', 'A3', 'Bb3', 'Cb4',
-                    'C4', 'Db4', 'D4', 'Eb4', 'Fb4', 'F4', 'Gb4', 'G4', 'Ab4', 'A4', 'Bb4', 'Cb5',
-                    'C5', 'Db5', 'D5', 'Eb5', 'Fb5', 'F5', 'Gb5', 'G5', 'Ab5', 'A5', 'Bb5', 'Cb6',
-                    'C6', 'Db6', 'D6', 'Eb6', 'Fb6', 'F6', 'Gb6', 'G6', 'Ab6', 'A6', 'Bb6', 'Cb7',
-                    'C7', 'Db7', 'D7', 'Eb7', 'Fb7', 'F7', 'Gb7', 'G7', 'Ab7', 'A7', 'Bb7', 'Cb8',
-                    'C8', 'Db8', 'D8', 'Eb8', 'Fb8', 'F8', 'Gb8', 'G8', 'Ab8', 'A8', 'Bb8', 'Cb9',
-                    'C9', 'Db9', 'D9', 'Eb9', 'Fb9', 'F9', 'Gb9', 'G9'];
-
-
-
-			function noteNameToMIDI(noteName)  {
-				var i;
-				var MIDInumber = -1; // default if not found
-				// check both arrays for the noteName
-				for(i=0; i < MIDI_SHARP_NAMES.length; i++) {
-					if( noteName == MIDI_SHARP_NAMES[i] ||
-							noteName == MIDI_FLAT_NAMES[i] ) {
-						MIDInumber = i;  // found it
-					}
-				}
-				return Number(MIDInumber); // it should be a number already, but...
-			}
-			
-			var MAJOR_SCALE = [0,2,4,5,7,9,11,12];
-			
-			function makeScale(scaleFormula, keyNameAndOctave) {
-				var ALPHA_NAMES = ['A','B','C','D','E','F','G'];
-				var startingName = keyNameAndOctave;
-				var offset;
-				for(var i=0; i<ALPHA_NAMES.length; i++) {
-					if(startingName.includes(ALPHA_NAMES[i])) {
-						offset = i;
-						break;
-					}
-				}
-				var startingNote = noteNameToMIDI(keyNameAndOctave);
-				var myScaleFormula = scaleFormula;
-				var myScale = [];
-				for(var i=0; i < myScaleFormula.length; i++) {
-					if(MIDI_SHARP_NAMES[myScaleFormula[i] + startingNote].includes(ALPHA_NAMES[(offset+i) % ALPHA_NAMES.length])) {
-						myScale.push( MIDI_SHARP_NAMES[myScaleFormula[i] + startingNote] );
-					} else if(MIDI_FLAT_NAMES[myScaleFormula[i] + startingNote].includes(ALPHA_NAMES[(offset+i) % ALPHA_NAMES.length])) {
-						myScale.push( MIDI_FLAT_NAMES[myScaleFormula[i] + startingNote] );
-					} else {
-						myScale.push("C7"); // high note used to indicate error
-					}
-				}
-				return myScale;
-			}
-//-------------------------------------------------*/
-
         </script>
     </body>
 </html>

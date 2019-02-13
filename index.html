@@ -107,7 +107,7 @@
                                     <th colspan="2" align="center">Key Signature</th>
                                 </tr>
                                 <tr>
-                                    <td colspan="2" align="center" width=120 height=77 class='whiteBG'>&nbsp;<span id="keySig"><img src="./KeySignatures/KSTs0.GIF"></span></td>
+                                    <td colspan="2" align="center" class='whiteBG'>&nbsp;<span id="keySig"><img src="./KeySignatures/KSTs0.GIF" width=150 height=96 ></span></td>
                                 </tr>
                             </table>
                         </div>
@@ -420,7 +420,7 @@
                 toneJSScale = toneJSNotes[indicatedSegment.text];
                 var imageURL = imagePath;
                 imageURL += keySigs[indicatedSegment.text]
-                var imageCode = '<img src="'+imageURL+'">'
+                var imageCode = '<img src="'+imageURL+'" width=150 height=96 >'
                 document.getElementById('keySig').innerHTML = imageCode;
 
                 Notation.clearLastAnimatedNote();

@@ -478,44 +478,44 @@
 				}
             }
 //----------------------- Tone.js ------------------------------------
-	    function stopIt(){
-		    Tone.Transport.stop();
-		    Tone.Transport.cancel(0);
-	    }
+	function stopIt(){
+	    Tone.Transport.stop();
+	    Tone.Transport.cancel(0);
+	}
 
         var synth;
         var myPart;
         // plays the selected scale.  Called by alertKey()
-	    function playMyScale(){
-	        Tone.context.resume();
-	        if(!myScale) { return; }
+	function playMyScale(){
+	    Tone.context.resume();
+	    if(!myScale) { return; }
 
             if (synth){
-		        synth.dispose();
+		synth.dispose();
                 synth = null;
             }
-	        synth = new Tone.Synth().toMaster();
+	    synth = new Tone.Synth().toMaster();
             if(myPart !== undefined) {
                 myPart.dispose();
             }
             myPart = new Tone.Part(function(time, note){
-		        synth.triggerAttackRelease(note, "4n", time);
-		        // animate the notes
-                Notation.drawTheColoredNote(note, "#CC0000");
-                console.log('drawTheColoredNote('+note+')');
-		    }, myScale);    
-		    myPart.loop = false;
-		    var tempo = 120;
-		    var volume = -10;
-		    Tone.Transport.bpm.value = tempo   
-		    synth.volume.value = volume;
-		    myPart.start(0, "1:0");
-		    console.log('before Tone.Transport.start');
-		    Tone.Transport.start("+0.1");
-		    console.log('after Tone.Transport.start');
+                synth.triggerAttackRelease(note, "4n", time);
+		// animate the notes
+                Tone.Draw.schedule(function() {
+                  Notation.drawTheColoredNote(note, "#CC0000");
+	    }, myScale);    
+	    myPart.loop = false;
+	    var tempo = 120;
+	    var volume = -10;
+	    Tone.Transport.bpm.value = tempo   
+	    synth.volume.value = volume;
+	    myPart.start(0, "1:0");
+	    console.log('before Tone.Transport.start');
+	    Tone.Transport.start("+0.1");
+	    console.log('after Tone.Transport.start');
             var delay = 4.1;
-		    Tone.Transport.stop("+"+delay);
-	    }
+	    Tone.Transport.stop("+"+delay);
+	}
         </script>
     </body>
 </html>
